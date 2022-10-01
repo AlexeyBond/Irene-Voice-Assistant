@@ -78,7 +78,12 @@ class ApiExtProvider:
             контекст, которому следует передать управление
         """
         if isgenerator(returned):
-            return GeneratorContext(returned, self).start(va)
+            ctx = GeneratorContext(returned, self).start(va)
+
+            if ctx is not None:
+                ctx = self._construct_ctx(ctx)
+
+            return ctx
 
         return self.get_next_context(default)
 
