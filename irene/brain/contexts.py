@@ -79,13 +79,13 @@ class ApiExtProvider:
         """
         if isgenerator(returned):
             ctx = GeneratorContext(returned, self).start(va)
+        else:
+            ctx = self.get_next_context(default)
 
-            if ctx is not None:
-                ctx = self._construct_ctx(ctx)
+        if ctx is not None:
+            ctx = self._construct_ctx(ctx)
 
-            return ctx
-
-        return self.get_next_context(default)
+        return ctx
 
     def set_timeout_override(self, timeout: float):
         self._next_context_timeout = timeout
