@@ -172,4 +172,4 @@ def call_all_parallel(steps: Iterable[OperationStep], *args, **kwargs):
     for t in threads:
         # простой вызов join() игнорирует KeyboardInterrupt
         while t.is_alive():
-            t.join(1.0)
+            t.join(0.1)

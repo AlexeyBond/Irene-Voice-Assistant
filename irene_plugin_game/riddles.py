@@ -20,7 +20,7 @@ class Riddle:
             va.say(line.format(**tpl_vars))
 
         answer = yield
-        correct = self.answer_expr.match(answer)
+        correct = not not self.answer_expr.match(answer)
         if correct:
             va.say("И это правильный ответ")
         else:

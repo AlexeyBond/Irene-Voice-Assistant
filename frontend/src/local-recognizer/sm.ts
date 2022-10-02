@@ -27,6 +27,7 @@ export const localRecognizerStateMachine = createMachine<Context>(
             active: {
                 invoke: {
                     src: 'runRecognition',
+                    id: 'recognizer',
                 },
                 on: {
                     WS_DISCONNECTED: { target: 'inactive' },
@@ -34,6 +35,8 @@ export const localRecognizerStateMachine = createMachine<Context>(
                         target: 'error',
                         actions: ['storeError'],
                     },
+                    PLAYBACK_STARTED: { actions: ['forwardToRecognizer'] },
+                    PLAYBACK_ENDED: { actions: ['forwardToRecognizer'] },
                 },
                 states: {
                     indirect: {
@@ -70,8 +73,10 @@ export const localRecognizerStateMachine = createMachine<Context>(
                 eventNameForProtocolName('in.stt.clientside'),
                 'WS_DISCONNECTED',
                 eventNameForMessageType('in.stt.clientside/processed'),
+                'PLAYBACK_STARTED',
+                'PLAYBACK_ENDED',
             ]),
-            runRecognition: (context: Context): InvokeCallback<any, AnyEventObject> => (callback) => {
+            runRecognition: (context: Context): InvokeCallback<AnyEventObject, AnyEventObject> => (callback, onReceived) => {
                 const p: Promise<() => Promise<void>> = (async () => {
                     const { run } = await import('@/local-recognizer/voskService');
                     let cb;
@@ -79,7 +84,8 @@ export const localRecognizerStateMachine = createMachine<Context>(
                     try {
                         cb = await run({
                             sampleRate: context.sampleRate,
-                            onRecognized: text => callback({ type: 'RECOGNIZED', data: text })
+                            onRecognized: text => callback({ type: 'RECOGNIZED', data: text }),
+                            onReceived,
                         });
                     } catch (e) {
                         callback({ type: 'ERROR', data: e });
@@ -118,6 +124,10 @@ export const localRecognizerStateMachine = createMachine<Context>(
             storeError: assign({
                 error: (_, event) => event.data,
             }),
+            forwardToRecognizer: send(
+                (_, evt) => evt,
+                { to: 'recognizer' },
+            ),
         },
     },
 );

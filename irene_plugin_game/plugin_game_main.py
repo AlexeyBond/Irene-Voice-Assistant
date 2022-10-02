@@ -10,7 +10,7 @@ version = '0'
 
 _PASSWORD: re.Pattern = re.compile("я.*не.*скажу.*заткнуть")
 
-_YES = re.compile("да")
+_YES = re.compile("да|верно")
 
 _username: str = ''
 

@@ -1,5 +1,6 @@
 import { createModel, type KaldiRecognizer } from 'vosk-browser';
 import type { ServerMessagePartialResult, ServerMessageResult } from 'vosk-browser/dist/interfaces';
+import type { AnyEventObject, Receiver } from 'xstate';
 
 import worklet from './recognizerWorklet.js?url';
 
@@ -9,11 +10,13 @@ export const run = async ({
     sampleRate = 48000,
     onRecognized,
     onPartialRecognized,
+    onReceived = () => {},
 }: {
     modelUrl?: string,
     sampleRate?: number,
     onPartialRecognized?: (text: string) => void,
     onRecognized: (text: string) => void,
+    onReceived: Receiver<AnyEventObject>,
 }) => {
     const model = await createModel(modelUrl);
     const recognizer: KaldiRecognizer = new model.KaldiRecognizer(
@@ -74,6 +77,21 @@ export const run = async ({
 
     const source = audioContext.createMediaStreamSource(mediaStream);
     source.connect(recognizerProcessor);
+
+    onReceived(event => {
+        switch (event.type) {
+            case 'PLAYBACK_STARTED':
+                // audioContext.suspend();
+                mediaStream.getTracks()[0].enabled = false;
+                console.log('suspended')
+                break;
+            case 'PLAYBACK_ENDED':
+                // audioContext.resume();
+                mediaStream.getTracks()[0].enabled = true;
+                console.log('resumed')
+                break;
+        }
+    });
 
     return async () => {
         await audioContext.close();
