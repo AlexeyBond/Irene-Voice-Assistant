@@ -1,6 +1,7 @@
 # Для работы Silero
 torch~=1.12.1
 numpy~=1.23.1
+torchaudio~=2.7.1
 
 # Для чтения конфигов
 pyyaml~=6.0

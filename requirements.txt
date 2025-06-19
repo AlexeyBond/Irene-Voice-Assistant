@@ -21,6 +21,8 @@ starlette~=0.19.1
 websockets~=10.3
 
 torch~=1.12.1
+torchaudio~=2.7.1
+omegaconf~=2.3.0
 
 time_machine~=2.8.2
 snapshottest~=0.6.0
